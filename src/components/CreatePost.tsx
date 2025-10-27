@@ -7,6 +7,8 @@ import { Avatar, AvatarImage } from '@radix-ui/react-avatar';
 import { Textarea } from './ui/textarea';
 import { Button } from './ui/button';
 import { ImageIcon, Loader2Icon, SendIcon } from 'lucide-react';
+import { createPost } from '@/actions/post.action';
+import toast from 'react-hot-toast';
 
 function CreatePost()  {
   const { user } = useUser();
@@ -15,14 +17,29 @@ function CreatePost()  {
   const [isPosting, setIsPosting] = useState(false);
   const [showImageUpload, setShowImageUpload] = useState(false);
 
-  const handleSubmit = () => {
+  const handleSubmit = async() => {
     if(!content.trim() && !imageUrl) return;
     setIsPosting(true);
+
+    try {
+      const result = await createPost(content, imageUrl);
+      if(result?.success) {
+        setContent('');
+        setImageUrl('');
+        setShowImageUpload(false);
+        toast.success('Post created successfully');
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error('Something went wrong');
+    } finally {
+      setIsPosting(false);
+    }
   }
   
 
   return (
-    <Card className='mb-6'>
+    <Card className='mb-6 shadow-xl'>
       <CardContent className='pt-6'>
         <div className='space-y-4'>
           <div className='flex space-x-4'>
